@@ -1,0 +1,12 @@
+---
+- name: Hard set the hostname
+  hostname: name={{ ansible_fqdn }}
+
+- name: Add host entry
+  lineinfile:
+    dest=/etc/hosts
+    regexp=" {{ ansible_hostname }} "
+    line="{{ ansible_default_ipv4.address }} {{ ansible_fqdn }}"
+    owner=root
+    group=root
+    mode=0644

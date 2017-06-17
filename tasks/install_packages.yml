@@ -1,0 +1,16 @@
+
+- name: Print the ansible_os_variables
+  debug:
+    msg: "{{ ipaserver_packages }}"
+
+- name: Ensure software is installed (yum)
+  yum: name={{ item }} state=present
+  with_items: "{{ ipaserver_packages }}"
+  when: ansible_distribution == "CentOS" or
+        (ansible_distribution == "Fedora" and ansible_distribution_version|int <= 21) or
+        ansible_distribution == "RedHat"
+
+- name: Ensure software is installed (dnf)
+  dnf: name={{ item }} state=present
+  with_items: ipaserver_packages
+  when: ansible_distribution == "Fedora" and ansible_distribution_version|int > 21

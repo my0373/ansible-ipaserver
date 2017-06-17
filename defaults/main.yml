@@ -1,19 +1,75 @@
-ipaserver_base_command: ipa-server-install -U 
+###############################################################################
+## Variable defaults for ipa-server
+## ================================
+##
+## Most of the variables here map to a specific command line flag
+## for ipa-server-install. There are a few additional options, which are there
+## for convenience.
+##
+## IMPORTANT: There are some operating system specific options, which are defined
+## in /vars/[OS Name]
+##
+## Most of these options you'll want to override either by defining them in a playbook
+## or using host / group variables.
+###############################################################################
+
+######
+## IPA install command line options
+######
+ipaserver_base_command: ipa-server-install -U
 ipaserver_configure_ssh: True
 ipaserver_configure_sshd: True
-ipaserver_dns_forwarder: 8.8.8.8
+
+## Set a default forwarder as the first nameserver ansible knows of.
+## If you are setting this, it's suggested to override it.
+ipaserver_dns_forwarder: "{{ ansible_dns.nameservers[0] }}"
 ipaserver_domain: example.com
 ipaserver_hbac_allow: True
 ipaserver_idstart: 5000
 ipaserver_idmax: False
 ipaserver_mkhomedir: True
-ipaserver_packages:
-  - ipa-server
-  - bind
-  - bind-dyndb-ldap
 ipaserver_realm: EXAMPLE.COM
 ipaserver_setup_dns: True
 ipaserver_setup_ntp: True
 ipaserver_ssh_trust_dns: True
 ipaserver_ui_redirect: True
 ipaserver_manage_firewalld: True
+ipaserver_admin_password: password
+ipaserver_dir_admin_password: password
+
+## Default IP - however for multihomed IPA servers you may want to override this.
+ipa_ip_address: "{{ ansible_default_ipv4.address }}"
+
+## Do not try and resolve the server FQDN during install
+skip_install_dns_lookup: False
+
+#####
+## IPA role convenience options
+#####
+
+## Only generate the install script. Don't actually run it.
+ipa_gen_script_only: False
+
+## Firewall services to open
+firewall_services:
+  - http
+  - https
+  - ldap
+  - ldaps
+  - kerberos
+  - kpasswd
+  - dns
+  - ntp
+## Firewall ports to open
+firewall_ports:
+  - 88/tcp
+  - 88/udp
+  - 464/udp
+  - 53/udp
+  - 123/udp
+  - 464/tcp
+  - 53/tcp
+
+## This flag prevents the playbook from checking for an ipa-server
+##installed package and will run the install and config plays.
+ipa_force_install: False
