@@ -1,0 +1,67 @@
+#!/bin/bash
+{#
+Description:
+    This template is used to generate a small shell script that
+    will be deployed and executed on the remote host.
+
+Why run a script and no a commnd ?
+
+    The reason I have chosen to deploy a script, is because
+    as an administrator it's useful to
+    have a reference of exactly which options were used.
+
+#}
+{# Script start #}
+{{- ipaserver_base_command }}  \
+    --realm {{ ipaserver_realm | upper }}  \
+    --domain {{ ipaserver_domain | lower }}  \
+    -a {{ ipaserver_admin_password }}  \
+    -p {{ ipaserver_dir_admin_password }}  \
+    --hostname={{ ansible_fqdn }}  \
+    --ip-address={{ ipa_ip_address }}  \
+{% if skip_install_dns_lookup %}
+    --no-host-dns  \
+{% endif %}
+{% if ipaserver_idstart %}
+    --idstart={{ ipaserver_idstart }} \
+{% endif %}
+{% if ipaserver_idmax %}
+    --idmax={{ ipaserver_idmax }} \
+{%  endif %}
+{# Start of DNS configuration block #}
+{% if ipaserver_setup_dns and not ipaserver_dns_forwarder %}
+    --setup-dns \
+    --no-forwarders \
+    --auto-reverse \
+{% elif ipaserver_setup_dns and
+        ipaserver_dns_forwarder %}
+    --setup-dns \
+    --forwarder={{ ipaserver_dns_forwarder }} \
+    --auto-reverse \
+{% else %}
+    --no-forwarders \
+{% endif %}
+{# End of DNS configuration block #}
+{% if ipaserver_mkhomedir  %}
+    --mkhomedir \
+{% endif %}
+{% if ipaserver_ssh_trust_dns %}
+    --ssh-trust-dns \
+{%  endif %}
+{% if not ipaserver_hbac_allow %}
+--no_hbac_allow \
+{%  endif %}
+{%  if not ipaserver_setup_ntp %}
+    --no-ntp \
+{%  endif %}
+{% if not ipaserver_configure_ssh %}
+    --no-ssh \
+{%  endif %}
+{%  if not ipaserver_configure_sshd %}
+    --no-sshd \
+{% endif %}
+{% if not ipaserver_ui_redirect %}
+    --no-ui-redirect
+{% endif %}
+    creates=/etc/ipa/default.conf
+{# Script end #}

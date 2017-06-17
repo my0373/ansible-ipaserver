@@ -14,6 +14,24 @@
   notify: reload firewalld
   when: ansible_distribution == "Fedora"
 
+
+- block:
+  - name: Enable HTTPS firewalld services as recommended by FreeIPA
+    firewalld:
+      service: "{{ item }}"
+      permanent: true
+      state: enabled
+    with_items: "{{ firewall_services }}"
+
+  - name: Enable HTTPS firewalld ports as recommended by FreeIPA
+    firewalld:
+      port: "{{ item }}"
+      permanent: true
+      state: enabled
+    with_items: "{{ firewall_ports }}"
+  when: ansible_distribution == ("RedHat" or ansible_distribution == "CentOS")
+
+
 - name: Enable the individual rulesets for CentOS
   firewalld: service={{ item }} permanent=true state=enabled
   with_items:

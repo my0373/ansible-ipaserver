@@ -1,0 +1,4 @@
+ipaserver_packages:
+  - ipa-server
+  - bind
+  - bind-dyndb-ldap
